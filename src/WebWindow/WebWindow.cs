@@ -56,7 +56,7 @@ namespace WebWindows
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void ResizedCallback(int width, int height);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void MovedCallback(int x, int y);
 
-        const string DllName = "WebWindow.Native";
+        const string DllName = "WebWindow.Native.dll";
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] static extern IntPtr WebWindow_register_win32(IntPtr hInstance);
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] static extern IntPtr WebWindow_register_mac();
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Auto)] static extern IntPtr WebWindow_ctor(string title, IntPtr parentWebWindow, OnWebMessageReceivedCallback webMessageReceivedCallback);
@@ -132,9 +132,9 @@ namespace WebWindows
             var parentPtr = options.Parent?._nativeWebWindow ?? default;
             _nativeWebWindow = WebWindow_ctor(_title, parentPtr, onWebMessageReceivedDelegate);
 
-            foreach (var (schemeName, handler) in options.SchemeHandlers)
+            foreach (var item in options.SchemeHandlers)
             {
-                AddCustomScheme(schemeName, handler);
+                AddCustomScheme(item.Key, item.Value);
             }
 
             var onResizedDelegate = (ResizedCallback)OnResized;

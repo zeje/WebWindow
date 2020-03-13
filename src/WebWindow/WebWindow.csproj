@@ -4,12 +4,13 @@
     <Title>WebWindow</Title>
     <PackageDescription>Open native OS windows hosting web UI on Windows, Mac, and Linux</PackageDescription>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>net45;net451;net452;net46;net461;net471;netstandard2.1;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+
     <NativeOutputDir>..\WebWindow.Native\x64\$(Configuration)\</NativeOutputDir>
     <IsMacOS>$([MSBuild]::IsOsPlatform('OSX'))</IsMacOS>
-    <NativeAssetRuntimeIdentifier Condition="'$(OS)' == 'Windows_NT'" >win-x64</NativeAssetRuntimeIdentifier>
-    <NativeAssetRuntimeIdentifier Condition="'$(OS)' != 'Windows_NT' AND '$(IsMacOS)' != 'true'" >linux-x64</NativeAssetRuntimeIdentifier>
-    <NativeAssetRuntimeIdentifier Condition="'$(OS)' != 'Windows_NT' AND '$(IsMacOS)' == 'true'" >osx-x64</NativeAssetRuntimeIdentifier>
+    <NativeAssetRuntimeIdentifier Condition="'$(OS)' == 'Windows_NT'">win-x64</NativeAssetRuntimeIdentifier>
+    <NativeAssetRuntimeIdentifier Condition="'$(OS)' != 'Windows_NT' AND '$(IsMacOS)' != 'true'">linux-x64</NativeAssetRuntimeIdentifier>
+    <NativeAssetRuntimeIdentifier Condition="'$(OS)' != 'Windows_NT' AND '$(IsMacOS)' == 'true'">osx-x64</NativeAssetRuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Windows_NT' AND '$(Configuration)' == 'Debug'">
@@ -18,12 +19,8 @@
 
   <Target Name="BuildNonWindowsNative" Condition="'$(OS)' != 'Windows_NT'" BeforeTargets="Build">
     <MakeDir Directories="..\WebWindow.Native\x64\$(Configuration)" />
-    <Exec Condition="'$(IsMacOS)' == 'true'"
-          WorkingDirectory="..\WebWindow.Native"
-          Command="gcc -shared -lstdc++ -DOS_MAC -framework Cocoa -framework WebKit WebWindow.Mac.mm Exports.cpp WebWindow.Mac.AppDelegate.mm WebWindow.Mac.UiDelegate.mm WebWindow.Mac.UrlSchemeHandler.m -o x64/$(Configuration)/WebWindow.Native.dylib" />
-    <Exec Condition="'$(IsMacOS)' != 'true'"
-          WorkingDirectory="..\WebWindow.Native"
-          Command="gcc -std=c++11 -shared -DOS_LINUX Exports.cpp WebWindow.Linux.cpp -o x64/$(Configuration)/WebWindow.Native.so `pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.0` -fPIC" />
+    <Exec Condition="'$(IsMacOS)' == 'true'" WorkingDirectory="..\WebWindow.Native" Command="gcc -shared -lstdc++ -DOS_MAC -framework Cocoa -framework WebKit WebWindow.Mac.mm Exports.cpp WebWindow.Mac.AppDelegate.mm WebWindow.Mac.UiDelegate.mm WebWindow.Mac.UrlSchemeHandler.m -o x64/$(Configuration)/WebWindow.Native.dylib" />
+    <Exec Condition="'$(IsMacOS)' != 'true'" WorkingDirectory="..\WebWindow.Native" Command="gcc -std=c++11 -shared -DOS_LINUX Exports.cpp WebWindow.Linux.cpp -o x64/$(Configuration)/WebWindow.Native.so `pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.0` -fPIC" />
   </Target>
 
   <ItemGroup>
@@ -37,6 +34,10 @@
       <Pack>true</Pack>
       <PackagePath>runtimes/$(NativeAssetRuntimeIdentifier)/native/%(Filename)%(Extension)</PackagePath>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
